@@ -1,0 +1,114 @@
+table cabang {
+  id_cabang integer [pk, increment]
+  nama_cabang varchar(100) [not null]
+  alamat varchar(255) [not null]
+  kota varchar(50) [not null]
+  telepon varchar(20)
+  status varchar(10) [not null]
+  dibuat_pada timestamptz [not null]
+  diperbarui_pada timestamptz [not null]
+}
+
+table karyawan {
+  id_karyawan integer [pk, increment]
+  id_cabang integer [not null, ref: > cabang.id_cabang]
+  nama varchar(100) [not null]
+  jabatan varchar(30) [not null]
+  no_identitas varchar(20) [unique, not null]
+  telepon varchar(20)
+  email varchar(100) [unique]
+  status_kerja varchar(15) [not null]
+  tanggal_bergabung date [not null]
+  tanggal_keluar date
+  dibuat_pada timestamptz [not null]
+  diperbarui_pada timestamptz [not null]
+}
+
+table shift {
+  id_shift integer [pk, increment]
+  nama_shift varchar(30) [unique, not null]
+  jam_mulai time [not null]
+  jam_selesai time [not null]
+  lintas_tengah_malam boolean [not null, default: false]
+  durasi_jam numeric(4,2) [not null]
+  toleransi_telat_menit smallint [not null]
+  status varchar(10) [not null]
+  dibuat_pada timestamptz [not null]
+  diperbarui_pada timestamptz [not null]
+}
+
+table pengguna {
+  id_pengguna integer [pk, increment]
+  id_karyawan integer [unique, ref: - karyawan.id_karyawan]
+  username varchar(50) [unique, not null]
+  password varchar(255) [not null]
+  peran varchar(20) [not null]
+  aktif boolean [not null]
+  terakhir_login timestamptz
+  dibuat_pada timestamptz [not null]
+  diperbarui_pada timestamptz [not null]
+}
+
+table jadwal {
+  id_jadwal integer [pk, increment]
+  id_karyawan integer [not null, ref: > karyawan.id_karyawan]
+  id_cabang integer [not null, ref: > cabang.id_cabang]
+  id_shift integer [not null, ref: > shift.id_shift]
+  tanggal date [not null]
+  status varchar(15) [not null]
+  dibuat_oleh integer [not null, ref: > pengguna.id_pengguna]
+  dibuat_pada timestamptz [not null]
+  diperbarui_pada timestamptz [not null]
+}
+
+table presensi {
+  id_presensi integer [pk, increment]
+  id_jadwal integer [unique, not null, ref: - jadwal.id_jadwal]
+  jam_masuk timestamptz
+  jam_keluar timestamptz
+  status varchar(20) [not null]
+  total_jam numeric(5,2)
+  menit_terlambat integer [not null, default: 0]
+  terkunci boolean [not null, default: false]
+  dibuat_pada timestamptz [not null]
+  diperbarui_pada timestamptz [not null]
+}
+
+table lembur {
+  id_lembur integer [pk, increment]
+  id_jadwal integer [not null, ref: > jadwal.id_jadwal]
+  tanggal_lembur date [not null]
+  jam_lembur numeric(3,1) [not null]
+  alasan varchar(255) [not null]
+  status varchar(15) [not null]
+  disetujui_oleh integer [ref: > pengguna.id_pengguna]
+  disetujui_pada timestamptz
+  terkunci boolean [not null, default: false]
+  dibuat_pada timestamptz [not null]
+  diperbarui_pada timestamptz [not null]
+}
+
+table rekap_bulanan {
+  id_rekap integer [pk, increment]
+  id_cabang integer [not null, ref: > cabang.id_cabang]
+  tanggal_mulai date [not null]
+  tanggal_selesai date [not null]
+  total_karyawan integer [not null]
+  total_jam_kerja numeric(10,2) [not null]
+  total_jam_terlambat numeric(8,2) [not null]
+  total_jam_lembur numeric(8,2) [not null]
+  dibuat_oleh integer [not null, ref: > pengguna.id_pengguna]
+  terkunci boolean [not null, default: false]
+  dikunci_pada timestamptz
+  dibuat_pada timestamptz [not null]
+}
+
+table log_audit {
+  id_audit integer [pk, increment]
+  id_pengguna integer [ref: > pengguna.id_pengguna]
+  aksi varchar(10) [not null]
+  nama_tabel varchar(50) [not null]
+  id_objek integer [not null]
+  data_lama jsonb
+  data_baru jsonb
+  waktu_catat timestamptz [not null]
