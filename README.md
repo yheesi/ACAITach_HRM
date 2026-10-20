@@ -21,6 +21,26 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## HRM sample data
+
+Create the HRM tables and populate local sample data with:
+
+```bash
+php artisan migrate --seed
+```
+
+The seed creates sample branches, employees, shifts, schedules, attendance, overtime, monthly summaries, and audit logs. It also creates a local HRM account with username `admin` and password `password`; change the password before using this account outside local development.
+
+Factories are available for each HRM model. For example:
+
+```bash
+php artisan tinker
+```
+
+```php
+App\Models\Karyawan::factory()->count(10)->create();
+```
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
